@@ -1,7 +1,22 @@
 import ExcelJS from "exceljs";
 import { Afiliado } from "../models/afiliado.js";
 
+const logEntrada = (req, handler) => {
+  console.log(`[ENTRADA] ${handler}`, {
+    method: req.method,
+    path: req.originalUrl,
+    params: req.params,
+    query: req.query,
+    body: req.body,
+  });
+};
+
+const logSalida = (handler, payload) => {
+  console.log(`[SALIDA] ${handler}`, payload);
+};
+
 export const exportAfiliadosToExcel = async (req, res) => {
+  logEntrada(req, "exportAfiliadosToExcel");
   try {
     // Consulta de los afiliados en MongoDB
     const afiliados = await Afiliado.find();
@@ -73,10 +88,23 @@ export const exportAfiliadosToExcel = async (req, res) => {
       'attachment; filename="Listado de afiliados.xlsx"'
     );
 
+    logSalida("exportAfiliadosToExcel", {
+      status: 200,
+      body: {
+        contentType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        contentDisposition: 'attachment; filename="Listado de afiliados.xlsx"',
+        total: afiliados.length,
+      },
+    });
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
     console.error("Error al exportar los datos a Excel:", error);
+    logSalida("exportAfiliadosToExcel", {
+      status: 500,
+      body: { msg: "Error al exportar los datos a Excel.", error },
+    });
     res.status(500).json({
       msg: "Error al exportar los datos a Excel.",
       error: error.message || error,

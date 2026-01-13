@@ -1,8 +1,23 @@
 import { Consulta } from "../models/consulta.js";
 import { sendEmail } from "../services/mailService.js";
 
+const logEntrada = (req, handler) => {
+  console.log(`[ENTRADA] ${handler}`, {
+    method: req.method,
+    path: req.originalUrl,
+    params: req.params,
+    query: req.query,
+    body: req.body,
+  });
+};
+
+const logSalida = (handler, payload) => {
+  console.log(`[SALIDA] ${handler}`, payload);
+};
+
 // Controlador para manejar las consultas de los usuarios
 export const enviarConsulta = async (req, res) => {
+  logEntrada(req, "enviarConsulta");
   const { nombre, correo, mensaje } = req.body;
 
   try {
@@ -25,11 +40,19 @@ export const enviarConsulta = async (req, res) => {
     );
 
     // Responder al cliente que el proceso fue exitoso
+    logSalida("enviarConsulta", {
+      status: 200,
+      body: { msg: "Consulta enviada y almacenada correctamente." },
+    });
     res.status(200).json({
       msg: "Consulta enviada y almacenada correctamente.",
     });
   } catch (error) {
     console.error("Error al enviar la consulta:", error);
+    logSalida("enviarConsulta", {
+      status: 500,
+      body: { msg: "Hubo un error al enviar la consulta.", error },
+    });
     res.status(500).json({
       msg: "Hubo un error al enviar la consulta.",
       error,
@@ -38,6 +61,7 @@ export const enviarConsulta = async (req, res) => {
 };
 
 export const obtenerConsultas = async (req = request, res = response) => {
+  logEntrada(req, "obtenerConsultas");
   const { limite = 4, desde = 0 } = req.query; // Paginación: límite y desde en la query string
 
   try {
@@ -49,12 +73,17 @@ export const obtenerConsultas = async (req = request, res = response) => {
         .limit(Number(limite)),
     ]);
 
+    logSalida("obtenerConsultas", { total, mensajes });
     res.json({
       total,
       mensajes, // Lista paginada de mensajes
     });
   } catch (error) {
     console.error(error);
+    logSalida("obtenerConsultas", {
+      status: 500,
+      body: { msg: "Error al obtener las consultas", error },
+    });
     res.status(500).json({
       msg: "Error al obtener las consultas",
       error,
