@@ -32,13 +32,6 @@ export const enviarConsulta = async (req, res) => {
       <p><strong>Mensaje:</strong> ${mensaje}</p>
     `;
 
-    // 3. Enviar el correo al soporte
-    await sendEmail(
-      "villevip10@gmail.com", // Correo del equipo de soporte
-      "Nueva consulta de usuario",
-      htmlContent
-    );
-
     // Responder al cliente que el proceso fue exitoso
     logSalida("enviarConsulta", {
       status: 200,
@@ -46,6 +39,23 @@ export const enviarConsulta = async (req, res) => {
     });
     res.status(200).json({
       msg: "Consulta enviada y almacenada correctamente.",
+    });
+
+    // 3. Enviar el correo al soporte en segundo plano
+    setImmediate(async () => {
+      try {
+        await sendEmail(
+          "villevip10@gmail.com", // Correo del equipo de soporte
+          "Nueva consulta de usuario",
+          htmlContent
+        );
+        console.log("[SALIDA] enviarConsulta", {
+          backgroundEmail: "ok",
+          to: process.env.EMAIL_USER,
+        });
+      } catch (error) {
+        console.error("Error al enviar el correo:", error);
+      }
     });
   } catch (error) {
     console.error("Error al enviar la consulta:", error);
