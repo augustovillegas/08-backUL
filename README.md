@@ -1,356 +1,324 @@
-# Backend Server
+<div align="center">
 
-<div style="border:1px solid #1e3a8a;padding:12px;border-radius:8px;background:#eff6ff">
-  <strong style="color:#1e3a8a">Resumen</strong><br/>
-  API REST en Node.js + Express con MongoDB (Mongoose), autenticacion JWT, subida de archivos, envio de correos, y exportacion de datos a Excel.
+# 🧩 Democratik - Herramienta de gestion politica
+
+Servidor backend para Democratik. API REST en Node.js + Express con MongoDB, JWT, subida de archivos, envio de emails y exportacion a Excel.
+
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-3c873a?style=flat&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4.x-000000?style=flat&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47a248?style=flat&logo=mongodb&logoColor=white)
+![Mongoose](https://img.shields.io/badge/Mongoose-8.x-800000?style=flat)
+![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=flat)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-Storage-3448c5?style=flat&logo=cloudinary&logoColor=white)
+![Nodemailer](https://img.shields.io/badge/Nodemailer-Email-1f2937?style=flat)
+![ExcelJS](https://img.shields.io/badge/ExcelJS-Reportes-0b6?style=flat)
+
+**Demo:** (pendiente) • **API Docs:** (pendiente) • **Changelog:** (pendiente)
+
+[Descripcion](#-descripcion) • [Stack](#-stack-tecnologico) • [Endpoints](#-api-integration--endpoints) • [Variables de entorno](#-variables-de-entorno) • [Deployment](#-deployment)
+
 </div>
 
-<div style="margin-top:10px;border:1px solid #065f46;padding:12px;border-radius:8px;background:#ecfdf3">
-  <strong style="color:#065f46">Estado</strong><br/>
-  Proyecto legacy mantenido, con flujos de registros y controladores separados por dominio.
-</div>
+---
 
-## Indice
-- Descripcion
-- Stack y dependencias
-- Servicios externos
-- Dependencias y versiones
-- Estructura del proyecto
-- Variables de entorno
-- Ejecucion local
-- Endpoints principales
-- Ejemplos de requests y responses
-- Logs y trazabilidad
+## 📚 Tabla de Contenidos
+1. [Descripcion](#-descripcion)
+2. [Caracteristicas](#-caracteristicas)
+3. [Stack Tecnologico](#-stack-tecnologico)
+4. [Inicio Rapido](#-inicio-rapido)
+5. [Arquitectura](#-arquitectura)
+6. [Estructura del Proyecto](#-estructura-del-proyecto)
+7. [Componentes / Modulos Principales](#-componentes--modulos-principales)
+8. [Validaciones](#-validaciones)
+9. [API Integration / Endpoints](#-api-integration--endpoints)
+10. [Scripts Disponibles](#-scripts-disponibles)
+11. [Variables de Entorno](#-variables-de-entorno)
+12. [Deployment](#-deployment)
+13. [Guias de Uso](#-guias-de-uso)
+14. [Personalizacion / Extension](#-personalizacion--extension)
+15. [Contribuciones](#-contribuciones)
+16. [Licencia](#-licencia)
 
-## Descripcion
-Servidor backend que expone endpoints para usuarios, autenticacion, afiliados, consultas, subida de archivos y exportacion a Excel. Incluye validaciones, JWT, y almacenamiento en MongoDB.
+---
 
-## Stack y dependencias
-<table>
-  <tr>
-    <th style="text-align:left;background:#111827;color:#f9fafb;padding:6px">Capa</th>
-    <th style="text-align:left;background:#111827;color:#f9fafb;padding:6px">Tecnologias</th>
-  </tr>
-  <tr>
-    <td style="padding:6px">API</td>
-    <td style="padding:6px">Node.js, Express</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">DB</td>
-    <td style="padding:6px">MongoDB, Mongoose</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">Auth</td>
-    <td style="padding:6px">JWT, bcryptjs</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">Archivos</td>
-    <td style="padding:6px">express-fileupload, Cloudinary</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">Email</td>
-    <td style="padding:6px">nodemailer</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">Reportes</td>
-    <td style="padding:6px">ExcelJS</td>
-  </tr>
-</table>
+## 🧾 Descripcion
+Backend legacy para gestion de usuarios, afiliados y consultas, con integraciones a MongoDB, Cloudinary y SMTP. Esta API expone endpoints REST para autenticar usuarios, registrar afiliados, subir archivos, enviar emails y exportar listados a Excel.
 
-## Servicios externos
-<div style="border:1px solid #0b3b2e;padding:12px;border-radius:8px;background:#eaf7f2">
-  <strong style="color:#0b3b2e">Integraciones</strong><br/>
-  MongoDB Atlas, Cloudinary, SMTP Gmail (via nodemailer). API_KEY_RESEND esta definida para un proveedor alternativo (no usado en el flujo actual).
-</div>
+**Problema que resuelve:** centralizar operaciones administrativas y registrar informacion de usuarios/afiliados con auditoria basica mediante logs.
 
-## Dependencias y versiones
-<table>
-  <tr>
-    <th style="text-align:left;background:#0f172a;color:#f9fafb;padding:6px">Paquete</th>
-    <th style="text-align:left;background:#0f172a;color:#f9fafb;padding:6px">Version</th>
-    <th style="text-align:left;background:#0f172a;color:#f9fafb;padding:6px">Uso</th>
-  </tr>
-  <tr><td style="padding:6px">express</td><td style="padding:6px">^4.21.2</td><td style="padding:6px">Framework HTTP</td></tr>
-  <tr><td style="padding:6px">mongoose</td><td style="padding:6px">^8.10.0</td><td style="padding:6px">ODM MongoDB</td></tr>
-  <tr><td style="padding:6px">jsonwebtoken</td><td style="padding:6px">^9.0.2</td><td style="padding:6px">JWT</td></tr>
-  <tr><td style="padding:6px">bcryptjs</td><td style="padding:6px">^2.4.3</td><td style="padding:6px">Hash de password</td></tr>
-  <tr><td style="padding:6px">express-validator</td><td style="padding:6px">^7.2.1</td><td style="padding:6px">Validaciones</td></tr>
-  <tr><td style="padding:6px">cors</td><td style="padding:6px">^2.8.5</td><td style="padding:6px">CORS</td></tr>
-  <tr><td style="padding:6px">dotenv</td><td style="padding:6px">^16.4.7</td><td style="padding:6px">Env vars</td></tr>
-  <tr><td style="padding:6px">express-fileupload</td><td style="padding:6px">^1.5.1</td><td style="padding:6px">Subida de archivos</td></tr>
-  <tr><td style="padding:6px">cloudinary</td><td style="padding:6px">^2.4.0</td><td style="padding:6px">Media storage</td></tr>
-  <tr><td style="padding:6px">nodemailer</td><td style="padding:6px">^6.10.0</td><td style="padding:6px">Email SMTP</td></tr>
-  <tr><td style="padding:6px">exceljs</td><td style="padding:6px">^4.4.0</td><td style="padding:6px">Export Excel</td></tr>
-  <tr><td style="padding:6px">uuidv4</td><td style="padding:6px">^6.2.13</td><td style="padding:6px">IDs de archivos</td></tr>
-  <tr><td style="padding:6px">resend</td><td style="padding:6px">^4.1.2</td><td style="padding:6px">Email API (no usado)</td></tr>
-  <tr><td style="padding:6px">nodemon</td><td style="padding:6px">^3.1.9</td><td style="padding:6px">Dev reload</td></tr>
-</table>
+**Para quien es:** equipo de soporte y administracion.
 
-## Estructura del proyecto
-```
-app.js
-controllers/
-database/
-helpers/
-middlewares/
-models/
-routes/
-services/
-public/
-```
+**Tipo de aplicacion:** API REST backend monolitica.
 
-## Variables de entorno
-No se incluyen valores reales. Definirlas segun el entorno:
+---
 
-```
-PORT
-MONGODB_CNN
-SECRETORPRIVATEKEY
-EMAIL_USER
-EMAIL_PASS
-CLOUDINARY_CLOUD_NAME
-CLOUDINARY_API_KEY
-CLOUDINARY_API_SECRET
-API_KEY_RESEND
-GOOGLE_CLIENTE_ID
-GOOGLE_SECRET_ID
-```
+## ✅ Caracteristicas
+- ✅ Autenticacion con JWT
+- ✅ CRUD basico de usuarios
+- ✅ Registro de afiliados con firma y documentos
+- ✅ Subida de imagenes (local y Cloudinary)
+- ✅ Consultas con persistencia y envio de email en segundo plano
+- ✅ Exportacion a Excel
+- ✅ Logs de entrada/salida en controladores
 
-## Ejecucion local
-```
+---
+
+## 🧠 Stack Tecnologico
+| Tecnologia | Proposito |
+| --- | --- |
+| Node.js | Runtime |
+| Express | Framework HTTP |
+| MongoDB Atlas | Base de datos |
+| Mongoose | ODM |
+| JWT | Autenticacion |
+| bcryptjs | Hash de passwords |
+| express-validator | Validaciones |
+| express-fileupload | Uploads |
+| Cloudinary | Storage de imagenes |
+| Nodemailer | Envio de correos |
+| ExcelJS | Exportacion a Excel |
+
+---
+
+## 🚀 Inicio Rapido
+**Prerrequisitos**
+- Node.js 18+ (recomendado)
+- MongoDB Atlas (o instancia compatible)
+- Credenciales SMTP/Cloudinary
+
+**Instalacion**
+```bash
 yarn install
+```
+
+**Ejecucion**
+```bash
 yarn start
 ```
 
-## Endpoints principales
-<table>
-  <tr>
-    <th style="text-align:left;background:#4c1d95;color:#f9fafb;padding:6px">Metodo</th>
-    <th style="text-align:left;background:#4c1d95;color:#f9fafb;padding:6px">Ruta</th>
-    <th style="text-align:left;background:#4c1d95;color:#f9fafb;padding:6px">Descripcion</th>
-  </tr>
-  <tr>
-    <td style="padding:6px">POST</td>
-    <td style="padding:6px">/api/auth</td>
-    <td style="padding:6px">Login de usuario, devuelve JWT</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">GET</td>
-    <td style="padding:6px">/api/users</td>
-    <td style="padding:6px">Listado paginado de usuarios</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">POST</td>
-    <td style="padding:6px">/api/users</td>
-    <td style="padding:6px">Crear usuario</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">PUT</td>
-    <td style="padding:6px">/api/users/:id</td>
-    <td style="padding:6px">Actualizar usuario</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">DELETE</td>
-    <td style="padding:6px">/api/users/:id</td>
-    <td style="padding:6px">Baja logica de usuario</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">GET</td>
-    <td style="padding:6px">/api/afiliados</td>
-    <td style="padding:6px">Listado paginado de afiliados</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">GET</td>
-    <td style="padding:6px">/api/afiliados/:id</td>
-    <td style="padding:6px">Detalle de afiliado por id</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">POST</td>
-    <td style="padding:6px">/api/afiliados</td>
-    <td style="padding:6px">Crear afiliado con archivos y firma</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">POST</td>
-    <td style="padding:6px">/api/uploads</td>
-    <td style="padding:6px">Subida de archivo simple</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">PUT</td>
-    <td style="padding:6px">/api/uploads/:coleccion/:id</td>
-    <td style="padding:6px">Actualizar imagen (local)</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">PUT</td>
-    <td style="padding:6px">/api/uploads/cloudinary/:coleccion/:id</td>
-    <td style="padding:6px">Actualizar imagen (Cloudinary)</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">GET</td>
-    <td style="padding:6px">/api/uploads/:coleccion/:id</td>
-    <td style="padding:6px">Ver imagen de entidad</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">POST</td>
-    <td style="padding:6px">/api/consultas</td>
-    <td style="padding:6px">Crear consulta y envio de email</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">GET</td>
-    <td style="padding:6px">/api/consultas</td>
-    <td style="padding:6px">Listado paginado de consultas</td>
-  </tr>
-  <tr>
-    <td style="padding:6px">GET</td>
-    <td style="padding:6px">/api/export</td>
-    <td style="padding:6px">Exportacion a Excel</td>
-  </tr>
-</table>
+---
 
-## Ejemplos de requests y responses
-<div style="border:1px solid #0f766e;padding:12px;border-radius:8px;background:#f0fdfa">
-  <strong style="color:#0f766e">Auth - Login</strong>
-</div>
+## 🧱 Arquitectura
+**Patrones utilizados**
+- MVC simplificado (routes -> controllers -> models)
+- Servicios para integraciones externas (email)
+- Helpers y middlewares para validaciones y utilidades
 
+**Flujo de datos (ASCII)**
+```
+Cliente
+  |
+  v
+Routes (Express)
+  |
+  v
+Controllers
+  |---> Models (MongoDB)
+  |---> Services (Email)
+  |---> Helpers/Middlewares
+  |
+  v
+Response
+```
+
+---
+
+## 🗂️ Estructura del Proyecto
+```
+app.js                      # entrypoint
+controllers/                # logica de negocio por dominio
+database/                   # conexion y configuracion MongoDB
+helpers/                    # utilidades (JWT, uploads, validaciones)
+middlewares/                # validaciones y autenticacion
+models/                     # modelos Mongoose
+routes/                     # definicion de rutas
+services/                   # integraciones externas (email)
+public/                     # contenido estatico
+assets/                     # assets locales
+```
+
+---
+
+## 🧩 Componentes / Modulos Principales
+- **controllers**: `auth`, `usuario`, `afiliado`, `uploads`, `export`, `contactController`
+- **routes**: `auth`, `usuario`, `afiliado`, `uploads`, `consulta`, `export`
+- **models**: `Usuario`, `Afiliado`, `Consulta`, `Role`
+- **middlewares**: JWT, roles, validacion de archivo, validaciones de input
+- **services**: envio de email via SMTP
+- **helpers**: JWT, validaciones DB, uploads, manejo de archivos
+
+---
+
+## 🧪 Validaciones
+- **express-validator** para inputs en rutas de usuarios y auth.
+- **validateJWT** para proteger endpoints sensibles (ej. delete usuario).
+- **validateRole / multiRole** para permisos por rol.
+- **validateFile** para asegurar presencia de archivos en uploads.
+
+---
+
+## 🔌 API Integration / Endpoints
+**Base URL:** `http://localhost:PORT`
+
+| Metodo | Ruta | Auth | Descripcion |
+| --- | --- | --- | --- |
+| POST | `/api/auth/login` | No | Login y generacion de JWT |
+| GET | `/api/users` | No | Listado paginado de usuarios |
+| POST | `/api/users` | No | Crear usuario |
+| PUT | `/api/users/:id` | No | Actualizar usuario |
+| DELETE | `/api/users/:id` | Si (JWT + rol) | Baja logica de usuario |
+| GET | `/api/afiliados` | No | Listado de afiliados |
+| GET | `/api/afiliados/:id` | No | Detalle de afiliado |
+| POST | `/api/afiliados` | No | Crear afiliado |
+| POST | `/api/uploads` | No | Subir archivo |
+| PUT | `/api/uploads/:coleccion/:id` | No | Actualizar imagen (Cloudinary) |
+| GET | `/api/uploads/:coleccion/:id` | No | Obtener imagen |
+| POST | `/api/consultas` | No | Crear consulta (email en background) |
+| GET | `/api/consultas` | No | Listado de consultas |
+| GET | `/api/export` | No | Exportar afiliados a Excel |
+
+**Modelos de datos (simplificados)**
+```json
+// Usuario
+{
+  "nombre": "string",
+  "correo": "string",
+  "password": "string",
+  "rol": "string",
+  "estado": true
+}
+
+// Afiliado
+{
+  "nombre": "string",
+  "dni": "string",
+  "correo": "string",
+  "fechaNacimiento": "YYYY-MM-DD",
+  "domicilio": "string",
+  "celular": "string",
+  "ocupacion": "string",
+  "estadoCivil": "string",
+  "pais": "string",
+  "provincia": "string",
+  "departamento": "string",
+  "firma": "data:image/png;base64,...",
+  "fotosDni": ["https://..."]
+}
+
+// Consulta
+{
+  "nombre": "string",
+  "correo": "string",
+  "mensaje": "string"
+}
+```
+
+---
+
+## 🧰 Scripts Disponibles
+| Script | Descripcion |
+| --- | --- |
+| `yarn start` | Inicia el servidor con Node |
+
+---
+
+## 🔐 Variables de Entorno
+**No incluir valores reales.** Ejemplo de `.env` con placeholders:
 ```bash
-curl -X POST http://localhost:PORT/api/auth \
-  -H "Content-Type: application/json" \
-  -d '{"correo":"user@example.com","password":"secret"}'
+PORT=3000
+MONGODB_CNN=mongodb+srv://USER:PASS@HOST/DB
+SECRETORPRIVATEKEY=your_jwt_secret
+
+EMAIL_USER=correo@dominio.com
+EMAIL_PASS=app_password_o_token
+
+CLOUDINARY_CLOUD_NAME=cloud_name
+CLOUDINARY_API_KEY=api_key
+CLOUDINARY_API_SECRET=api_secret
+
+API_KEY_RESEND=api_key_resend
+GOOGLE_CLIENTE_ID=google_client_id
+GOOGLE_SECRET_ID=google_secret_id
 ```
 
-```json
-{
-  "usuario": {
-    "uid": "string",
-    "nombre": "string",
-    "correo": "string",
-    "rol": "string"
-  },
-  "token": "jwt"
-}
-```
+| Variable | Descripcion |
+| --- | --- |
+| `PORT` | Puerto de escucha |
+| `MONGODB_CNN` | Conexion a MongoDB |
+| `SECRETORPRIVATEKEY` | Firma de JWT |
+| `EMAIL_USER` | Usuario SMTP |
+| `EMAIL_PASS` | Password o token SMTP |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud |
+| `CLOUDINARY_API_KEY` | API key Cloudinary |
+| `CLOUDINARY_API_SECRET` | API secret Cloudinary |
+| `API_KEY_RESEND` | API key Resend (no usado) |
+| `GOOGLE_CLIENTE_ID` | OAuth client id (si aplica) |
+| `GOOGLE_SECRET_ID` | OAuth secret (si aplica) |
 
-<div style="border:1px solid #7c2d12;padding:12px;border-radius:8px;background:#fff7ed">
-  <strong style="color:#7c2d12">Usuarios - Listado</strong>
-</div>
+---
 
+## 🚢 Deployment
+**Servicio recomendado:** Render o Railway
+
+**Pasos generales**
+1. Configurar variables de entorno en el panel del proveedor.
+2. Usar `yarn install` y `yarn start`.
+3. Configurar el puerto con `PORT`.
+
+**Configuracion ejemplo**
 ```bash
-curl "http://localhost:PORT/api/users?limite=5&desde=0"
+START_COMMAND=yarn start
+NODE_ENV=production
 ```
 
-```json
-{
-  "total": 0,
-  "usuarios": []
-}
-```
+<details>
+<summary>Notas de SMTP (Gmail)</summary>
 
-<div style="border:1px solid #1f2937;padding:12px;border-radius:8px;background:#f9fafb">
-  <strong style="color:#1f2937">Afiliados - Crear</strong>
+- Usar App Password si la cuenta tiene 2FA.
+- Verificar que `EMAIL_USER`/`EMAIL_PASS` esten definidos en el entorno productivo.
+
+</details>
+
+---
+
+## 🧭 Guias de Uso
+**Flujo: Login**
+1. `POST /api/auth/login` con correo y password.
+2. Usar el token JWT para endpoints protegidos.
+
+**Flujo: Crear afiliado**
+1. `POST /api/afiliados` con datos personales y firma en base64.
+2. Adjuntar `fotoDni*` si se requiere.
+
+**Flujo: Exportar**
+1. `GET /api/export`.
+2. Recibir archivo `.xlsx`.
+
+---
+
+## 🛠️ Personalizacion / Extension
+- Integrar `resend` como proveedor alternativo de email.
+- Agregar colas (Bull/Agenda) para envios asincronos.
+- Incluir rate limiting para endpoints publicos.
+- Versionar la API (`/api/v1`).
+
+---
+
+## 🤝 Contribuciones
+1. Crear un branch desde `main`.
+2. Enviar PR con descripcion clara.
+3. Incluir pruebas o pasos de verificacion si aplica.
+
+---
+
+## 📄 Licencia
+MIT
+
+---
+
+<div align="center">
+
+Hecho con foco en mantenibilidad y trazabilidad.  
+[Volver arriba](#-democratik---herramienta-de-gestion-politica)
+
 </div>
-
-```bash
-curl -X POST http://localhost:PORT/api/afiliados \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nombre":"string",
-    "dni":"string",
-    "correo":"string",
-    "fechaNacimiento":"YYYY-MM-DD",
-    "domicilio":"string",
-    "celular":"string",
-    "ocupacion":"string",
-    "estadoCivil":"string",
-    "pais":"string",
-    "provincia":"string",
-    "departamento":"string",
-    "firma":"data:image/png;base64,..."
-  }'
-```
-
-```json
-{
-  "msg": "Afiliado creado exitosamente.",
-  "afiliado": {
-    "id": "string"
-  }
-}
-```
-
-<div style="border:1px solid #0f172a;padding:12px;border-radius:8px;background:#e2e8f0">
-  <strong style="color:#0f172a">Consultas - Enviar</strong>
-</div>
-
-```bash
-curl -X POST http://localhost:PORT/api/consultas \
-  -H "Content-Type: application/json" \
-  -d '{"nombre":"string","correo":"string","mensaje":"string"}'
-```
-
-```json
-{
-  "msg": "Consulta enviada y almacenada correctamente."
-}
-```
-
-<div style="border:1px solid #6b21a8;padding:12px;border-radius:8px;background:#faf5ff">
-  <strong style="color:#6b21a8">Uploads - Archivo simple</strong>
-</div>
-
-```bash
-curl -X POST http://localhost:PORT/api/uploads \
-  -F "archivo=@/path/archivo.jpg"
-```
-
-```json
-{
-  "nombre": "archivo.jpg"
-}
-```
-
-<div style="border:1px solid #1f2937;padding:12px;border-radius:8px;background:#f3f4f6">
-  <strong style="color:#1f2937">Uploads - Actualizar (Cloudinary)</strong>
-</div>
-
-```bash
-curl -X PUT http://localhost:PORT/api/uploads/cloudinary/users/USER_ID \
-  -F "archivo=@/path/archivo.jpg"
-```
-
-```json
-{
-  "_id": "string",
-  "img": "https://res.cloudinary.com/.../image.jpg"
-}
-```
-
-<div style="border:1px solid #991b1b;padding:12px;border-radius:8px;background:#fef2f2">
-  <strong style="color:#991b1b">Errores - Ejemplo 400</strong>
-</div>
-
-```json
-{
-  "msg": "Usuario / Password no son correctos."
-}
-```
-
-<div style="border:1px solid #7c2d12;padding:12px;border-radius:8px;background:#fff7ed">
-  <strong style="color:#7c2d12">Errores - Ejemplo 500</strong>
-</div>
-
-```json
-{
-  "msg": "ERROR: Hable con el administrador."
-}
-```
-
-<div style="border:1px solid #1d4ed8;padding:12px;border-radius:8px;background:#eff6ff">
-  <strong style="color:#1d4ed8">Export - Excel</strong>
-</div>
-
-```bash
-curl -X GET http://localhost:PORT/api/export -o afiliados.xlsx
-```
-
-## Logs y trazabilidad
-- Los controladores registran logs de entrada y salida con informacion de request y respuesta.
-- El envio de email se ejecuta en segundo plano y reporta el resultado en consola.
