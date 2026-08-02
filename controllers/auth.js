@@ -1,9 +1,11 @@
 import { response, request } from "express";
+import crypto from "crypto";
 import { Usuario } from "../models/usuario.js";
 import bcryptjs from 'bcryptjs';
 import { generateJWT } from "../helpers/generateJWT.js";
 import { sendEmail } from "../services/mailService.js";
-import { v4 as uuid } from "uuid";
+
+const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
 const logEntrada = (req, handler) => {
   console.log(`[ENTRADA] ${handler}`, {
@@ -87,13 +89,13 @@ export const olvidePassword = async (req = request, res = response) => {
       return res.status(400).json({ msg: "No existe una cuenta con ese correo." });
     }
 
-    const token = uuid();
-    usuario.resetToken = token;
+    const plainToken = crypto.randomBytes(32).toString("hex");
+    usuario.resetToken = hashToken(plainToken);
     usuario.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
     await usuario.save();
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5174";
-    const resetUrl = `${frontendUrl}/login/restablecer-password?token=${token}`;
+    const resetUrl = `${frontendUrl}/login/restablecer-password?token=${plainToken}`;
     const html = `
       <h2>Recuperar contraseña</h2>
       <p>Hola ${usuario.nombre},</p>
@@ -127,7 +129,7 @@ export const restablecerPassword = async (req = request, res = response) => {
 
   try {
     const usuario = await Usuario.findOne({
-      resetToken: token,
+      resetToken: hashToken(token),
       resetTokenExpiry: { $gt: new Date() },
     });
 

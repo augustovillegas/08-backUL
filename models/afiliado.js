@@ -122,4 +122,7 @@ const AfiliadoSchema = new Schema({
   },
 });
 
+AfiliadoSchema.index({ fecha: -1 });
+AfiliadoSchema.index({ nombre: "text" });
+
 export const Afiliado = model("Afiliado", AfiliadoSchema);

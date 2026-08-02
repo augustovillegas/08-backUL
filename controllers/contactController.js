@@ -45,7 +45,7 @@ export const enviarConsulta = async (req, res) => {
     setImmediate(async () => {
       try {
         await sendEmail(
-          "villevip10@gmail.com", // Correo del equipo de soporte
+          process.env.SUPPORT_EMAIL,
           "Nueva consulta de usuario",
           htmlContent
         );
