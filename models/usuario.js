@@ -32,6 +32,9 @@ const UsuarioSchema = Schema({
     type: Boolean,
     default: true,
   },
+
+  resetToken: { type: String },
+  resetTokenExpiry: { type: Date },
 });
 
 UsuarioSchema.methods.toJSON = function () {

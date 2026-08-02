@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import fileUpload from "express-fileupload";
 import { dbConnection } from "../database/config.js";
 import { afiliadoRouter } from "../routes/afiliado.js";
@@ -37,8 +39,35 @@ export class Server {
   }
 
   middlewares() {
+    // Security headers
+    this.app.use(helmet());
+
     // CORS
-    this.app.use(cors());
+    const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean);
+    this.app.use(
+      cors({
+        origin: allowedOrigins.length
+          ? (origin, cb) => {
+              if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+              cb(new Error(`Origin ${origin} not allowed by CORS`));
+            }
+          : true,
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+        allowedHeaders: ["Content-Type", "Authorization", "x-token"],
+      })
+    );
+
+    // Rate limiting — auth endpoints
+    const authLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 20,
+      message: { msg: "Demasiados intentos. Intentá de nuevo en 15 minutos." },
+    });
+    this.app.use("/api/auth", authLimiter);
 
     // Lectura y parseo del body
     this.app.use(express.json());

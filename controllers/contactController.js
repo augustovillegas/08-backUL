@@ -65,14 +65,14 @@ export const enviarConsulta = async (req, res) => {
     });
     res.status(500).json({
       msg: "Hubo un error al enviar la consulta.",
-      error,
     });
   }
 };
 
 export const obtenerConsultas = async (req = request, res = response) => {
   logEntrada(req, "obtenerConsultas");
-  const { limite = 4, desde = 0 } = req.query; // Paginación: límite y desde en la query string
+  const limite = Math.max(1, Math.min(parseInt(req.query.limite) || 4, 100));
+  const desde = Math.max(0, parseInt(req.query.desde) || 0);
 
   try {
     const [total, mensajes] = await Promise.all([
@@ -96,7 +96,6 @@ export const obtenerConsultas = async (req = request, res = response) => {
     });
     res.status(500).json({
       msg: "Error al obtener las consultas",
-      error,
     });
   }
 };

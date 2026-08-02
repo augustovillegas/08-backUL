@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 import { Usuario } from "../models/usuario.js";
 
 export const validateJWT = async (req = request, res = response, next) => {
-  const token = req.header("x-token");
+  const authHeader = req.header("Authorization") || req.header("x-token") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
 
   if (!token) {
     return res.status(401).json({

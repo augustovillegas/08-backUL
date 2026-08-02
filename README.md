@@ -82,18 +82,48 @@ Backend legacy para gestion de usuarios, afiliados y consultas, con integracione
 
 ## 🚀 Inicio Rapido
 **Prerrequisitos**
-- Node.js 18+ (recomendado)
+- Node.js 18+
 - MongoDB Atlas (o instancia compatible)
-- Credenciales SMTP/Cloudinary
+- Credenciales SMTP y Cloudinary
 
 **Instalacion**
 ```bash
 yarn install
 ```
 
+**Configuracion**
+```bash
+cp .env.example .env
+# Completar .env con los valores reales (MongoDB, JWT, Cloudinary, Email)
+```
+
 **Ejecucion**
 ```bash
-yarn start
+yarn dev       # Desarrollo (NODE_ENV=development, puerto 3000)
+yarn start     # Produccion (NODE_ENV=production, puerto 8080)
+```
+
+**Inicializar base de datos (primera vez)**
+```bash
+yarn seed
+```
+
+---
+
+## 🔑 Credenciales de Administrador
+
+> Ejecutar `yarn seed` para crear el usuario administrador en la base de datos.
+
+| Campo    | Valor                  |
+| -------- | ---------------------- |
+| Email    | `admin@democratik.ar`  |
+| Password | `Admin.2024!`          |
+| Rol      | `ADMIN_ROLE`           |
+
+Para cambiar las credenciales por defecto, definir en `.env`:
+```bash
+ADMIN_EMAIL=otro@correo.com
+ADMIN_PASSWORD=OtraPassword123!
 ```
 
 ---
