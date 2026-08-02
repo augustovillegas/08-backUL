@@ -4,3 +4,17 @@ node_modules/
 .env
 .env.local
 .env.*.local
+
+# AI tools (Claude, Codex)
+.agents/
+.claude/
+skills-lock.json
+
+# Logs y OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+public/uploads/

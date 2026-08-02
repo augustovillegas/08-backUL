@@ -213,13 +213,11 @@ export const afiliadoPost = async (req, res = response) => {
     });
   } catch (error) {
     console.error(error);
-    logSalida("afiliadoPost", {
-      status: 500,
-      body: { msg: "Error al crear el afiliado.", error },
-    });
-    res.status(500).json({
-      msg: "Error al crear el afiliado.",
-      error,
-    });
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({ msg: messages.join(" ") });
+    }
+    logSalida("afiliadoPost", { status: 500, body: { msg: "Error al crear el afiliado." } });
+    res.status(500).json({ msg: "Error al crear el afiliado." });
   }
 };

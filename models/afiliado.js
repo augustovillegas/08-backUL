@@ -112,14 +112,8 @@ const AfiliadoSchema = new Schema({
   },
 
   fotosDni: {
-    type: [String], // Un arreglo de cadenas para almacenar múltiples rutas de archivos
-    required: [true, "La documentación es requerida."],
-    validate: {
-      validator: function (v) {
-        return v && v.length > 0;
-      },
-      message: "Debe subir al menos un archivo.",
-    },
+    type: [String],
+    default: [],
   },
 
   fecha: {
