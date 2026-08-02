@@ -129,65 +129,69 @@ export const afiliadoPost = async (req, res = response) => {
       });
     }
 
-    // Carpeta base por afiliado: afiliados/<nombre-dni>
-    const folderName = `afiliados/${nombre
+    // Carpeta base: afiliados/<nombre_dni>
+    const nombreNorm = nombre
       .normalize("NFD")
       .replace(/[̀-ͯ]/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "_")}_${dni}`;
+      .replace(/[^a-zA-Z0-9]/g, "_");
+    const folderBase = `afiliados/${nombreNorm}_${dni}`;
 
-    // Subir las fotos del DNI a Cloudinary (si se proporcionan)
+    // Metadatos y tags comunes a todas las imágenes de este afiliado
+    const fechaRegistro = new Date().toISOString().split("T")[0];
+    const cloudinaryTags = [dni, provincia || pais, ocupacion, "afiliado"].filter(Boolean);
+    const cloudinaryContext = `nombre=${nombre}|dni=${dni}|correo=${correo}|provincia=${provincia || ""}|fecha=${fechaRegistro}`;
+
+    // Opciones base de optimización
+    const baseOptions = {
+      quality: "auto",
+      fetch_format: "auto",
+      tags: cloudinaryTags,
+      context: cloudinaryContext,
+    };
+
+    // Subir fotos del DNI
     let fotosDniUrls = [];
     if (req.files) {
+      let dniIndex = 1;
       for (const key in req.files) {
         if (key.startsWith("fotoDni")) {
           const { tempFilePath } = req.files[key];
           const { secure_url } = await cloudinary.uploader.upload(tempFilePath, {
-            folder: `${folderName}/dni`,
+            ...baseOptions,
+            folder: `${folderBase}/dni`,
+            public_id: `dni_${dniIndex}`,
+            overwrite: true,
           });
           fotosDniUrls.push(secure_url);
+          dniIndex++;
         }
       }
     }
 
-    // Manejo de la firma en base64
+    // Subir firma
     let firmaUrl = "";
     if (firma && firma !== "null") {
-      // Verificar que la firma no sea null o vacía
       try {
-        // Ruta temporal para guardar la firma
-        const tempDir = os.tmpdir(); // Ruta del directorio temporal del sistema
-        const tempFirmaPath = path.join(tempDir, `firma-${Date.now()}.png`); // Nombre de archivo único
-
-        // Convertir la firma base64 a imagen y guardarla en la ruta temporal
+        const tempDir = os.tmpdir();
+        const tempFirmaPath = path.join(tempDir, `firma-${Date.now()}.png`);
         const base64Data = firma.replace(/^data:image\/png;base64,/, "");
         fs.writeFileSync(tempFirmaPath, base64Data, "base64");
 
-        // Subir la imagen temporal a Cloudinary
         const { secure_url } = await cloudinary.uploader.upload(tempFirmaPath, {
-          folder: `${folderName}/firma`,
+          ...baseOptions,
+          folder: `${folderBase}/firma`,
+          public_id: "firma",
+          overwrite: true,
         });
         firmaUrl = secure_url;
 
-        // Eliminar el archivo temporal después de la carga
         fs.unlink(tempFirmaPath, (err) => {
-          if (err) {
-            console.error("Error al eliminar archivo temporal:", err);
-          } else {
-            console.log("Archivo temporal eliminado correctamente");
-          }
+          if (err) console.error("Error al eliminar archivo temporal:", err);
         });
       } catch (err) {
         console.error("Error al procesar la firma base64:", err);
-        logSalida("afiliadoPost", {
-          status: 400,
-          body: { msg: "Firma no válida, por favor intenta nuevamente." },
-        });
-        return res.status(400).json({
-          msg: "Firma no válida, por favor intenta nuevamente.",
-        });
+        return res.status(400).json({ msg: "Firma no válida, por favor intenta nuevamente." });
       }
-    } else {
-      console.log("No se recibió firma válida.");
     }
 
     // Guardar nuevo afiliado con la firma y fotos subidas
