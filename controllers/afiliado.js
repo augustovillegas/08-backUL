@@ -95,6 +95,16 @@ export const afiliadoGetById = async (req = request, res = response) => {
   }
 };
 
+const toTitleCase = (str) => {
+  if (!str) return str;
+  return str
+    .trim()
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+};
+
 export const afiliadoPost = async (req, res = response) => {
   logEntrada(req, "afiliadoPost");
   try {
@@ -103,19 +113,22 @@ export const afiliadoPost = async (req, res = response) => {
     console.log("Archivos recibidos:", req.files);
 
     const {
-      nombre,
       dni,
-      correo,
+      correo: correoRaw,
       fechaNacimiento,
-      domicilio,
       celular,
       ocupacion,
       estadoCivil,
       pais,
-      provincia,
-      departamento,
       firma, // Firma en Base64
     } = req.body;
+
+    // Normalizar campos de texto libre
+    const nombre      = toTitleCase(req.body.nombre);
+    const correo      = correoRaw?.trim().toLowerCase();
+    const domicilio   = toTitleCase(req.body.domicilio);
+    const provincia   = toTitleCase(req.body.provincia);
+    const departamento = toTitleCase(req.body.departamento);
 
     // Verificar si ya existe un afiliado con el DNI proporcionado
     const afiliadoDB = await Afiliado.findOne({ dni });
