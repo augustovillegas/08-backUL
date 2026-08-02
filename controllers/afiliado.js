@@ -129,16 +129,21 @@ export const afiliadoPost = async (req, res = response) => {
       });
     }
 
+    // Carpeta base por afiliado: afiliados/<nombre-dni>
+    const folderName = `afiliados/${nombre
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "_")}_${dni}`;
+
     // Subir las fotos del DNI a Cloudinary (si se proporcionan)
     let fotosDniUrls = [];
     if (req.files) {
-      // Procesar las claves que empiezan con 'fotoDni'
       for (const key in req.files) {
         if (key.startsWith("fotoDni")) {
-          const file = req.files[key];
-          // Si se usa fileUpload, cada 'file' es un objeto de archivo
-          const { tempFilePath } = file;
-          const { secure_url } = await cloudinary.uploader.upload(tempFilePath);
+          const { tempFilePath } = req.files[key];
+          const { secure_url } = await cloudinary.uploader.upload(tempFilePath, {
+            folder: `${folderName}/dni`,
+          });
           fotosDniUrls.push(secure_url);
         }
       }
@@ -158,7 +163,9 @@ export const afiliadoPost = async (req, res = response) => {
         fs.writeFileSync(tempFirmaPath, base64Data, "base64");
 
         // Subir la imagen temporal a Cloudinary
-        const { secure_url } = await cloudinary.uploader.upload(tempFirmaPath);
+        const { secure_url } = await cloudinary.uploader.upload(tempFirmaPath, {
+          folder: `${folderName}/firma`,
+        });
         firmaUrl = secure_url;
 
         // Eliminar el archivo temporal después de la carga
