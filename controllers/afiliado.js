@@ -110,13 +110,14 @@ export const afiliadoPut = async (req, res = response) => {
   const { id } = req.params;
   const { celular, correo: correoRaw, domicilio: domicilioRaw, ocupacion, estadoCivil } = req.body;
 
+  const nombre    = toTitleCase(req.body.nombre);
   const correo    = correoRaw?.trim().toLowerCase();
   const domicilio = toTitleCase(domicilioRaw);
 
   try {
     const afiliado = await Afiliado.findByIdAndUpdate(
       id,
-      { celular, correo, domicilio, ocupacion, estadoCivil },
+      { nombre, celular, correo, domicilio, ocupacion, estadoCivil },
       { new: true, runValidators: true }
     );
     if (!afiliado) {
