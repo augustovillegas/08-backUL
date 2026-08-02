@@ -4,6 +4,8 @@ import {
   afiliadoGet,
   afiliadoGetById,
   afiliadoPost,
+  afiliadoPut,
+  afiliadoDelete,
 } from "../controllers/afiliado.js";
 import { validateJWT } from "../middlewares/validateJWT.js";
 
@@ -27,11 +29,7 @@ afiliadoRouter.get("/:id", validateJWT, afiliadoGetById);
 afiliadoRouter.post("/", registroLimiter, afiliadoPost);
 
 // Actualizar por ID - Admin
-afiliadoRouter.put("/:id", (req, res) => {
-  res.json("put");
-});
+afiliadoRouter.put("/:id", validateJWT, afiliadoPut);
 
 // Borrar un afiliado - Admin
-afiliadoRouter.delete("/:id", (req, res) => {
-  res.json("delete");
-});
+afiliadoRouter.delete("/:id", validateJWT, afiliadoDelete);

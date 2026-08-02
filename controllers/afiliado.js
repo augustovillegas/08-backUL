@@ -105,6 +105,51 @@ const toTitleCase = (str) => {
     .join(" ");
 };
 
+export const afiliadoPut = async (req, res = response) => {
+  logEntrada(req, "afiliadoPut");
+  const { id } = req.params;
+  const { celular, correo: correoRaw, domicilio: domicilioRaw, ocupacion, estadoCivil } = req.body;
+
+  const correo    = correoRaw?.trim().toLowerCase();
+  const domicilio = toTitleCase(domicilioRaw);
+
+  try {
+    const afiliado = await Afiliado.findByIdAndUpdate(
+      id,
+      { celular, correo, domicilio, ocupacion, estadoCivil },
+      { new: true, runValidators: true }
+    );
+    if (!afiliado) {
+      return res.status(404).json({ msg: "Afiliado no encontrado." });
+    }
+    logSalida("afiliadoPut", { msg: "Afiliado actualizado.", afiliado });
+    res.json({ msg: "Afiliado actualizado.", afiliado });
+  } catch (error) {
+    console.error(error);
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({ msg: messages.join(" ") });
+    }
+    res.status(500).json({ msg: "Error al actualizar el afiliado." });
+  }
+};
+
+export const afiliadoDelete = async (req, res = response) => {
+  logEntrada(req, "afiliadoDelete");
+  const { id } = req.params;
+  try {
+    const afiliado = await Afiliado.findByIdAndDelete(id);
+    if (!afiliado) {
+      return res.status(404).json({ msg: "Afiliado no encontrado." });
+    }
+    logSalida("afiliadoDelete", { msg: "Afiliado eliminado.", afiliado });
+    res.json({ msg: "Afiliado eliminado.", afiliado });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al eliminar el afiliado." });
+  }
+};
+
 export const afiliadoPost = async (req, res = response) => {
   logEntrada(req, "afiliadoPost");
   try {
